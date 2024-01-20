@@ -5,13 +5,12 @@ from stopwords import stopwords
 import training_data
 from cohere.responses.classify import Example
 from flask import Flask, request
+import csv
 
 app = Flask(__name__)
 
 @app.route("/acceptData", methods=["POST"])
 def get_data():
-  print(request.headers)
-
   request_data = request.form.to_dict()
   data_type = int(request_data['type'])
 
@@ -21,9 +20,14 @@ def get_data():
     pass
   elif data_type == 1:
     inputs = request_data["data"].split(",")
-    print(inputs)
   elif data_type == 2:
-    inputs = request.files["file"].read().decode("utf-8").split(",")
+    file_content = request.files["file"].read().decode("utf-8")
+    csv_reader = csv.reader(file_content.splitlines())
+    inputs = []
+    for row in csv_reader:
+      string_row = "".join(row)
+      inputs.append(string_row)
+  
     for i in range(len(inputs)):
       inputs[i] = inputs[i].strip()
 
